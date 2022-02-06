@@ -1,0 +1,7 @@
+fix16.h:48:23:fix16_from_int	16	static
+fix16_exp.c:11:9:fix16_exp	32	static
+fix16_exp.c:60:9:fix16_log	40	static
+fix16_exp.c:105:23:fix16_rs	24	static
+fix16_exp.c:121:16:fix16__log2_inner	24	static
+fix16_exp.c:164:9:fix16_log2	24	static
+fix16_exp.c:190:9:fix16_slog2	24	static

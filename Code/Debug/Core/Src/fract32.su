@@ -1,0 +1,4 @@
+fract32.c:5:11:fract32_create	24	static
+fract32.c:13:11:fract32_invert	16	static
+fract32.c:18:10:fract32_usmul	40	static
+fract32.c:22:9:fract32_smul	16	static

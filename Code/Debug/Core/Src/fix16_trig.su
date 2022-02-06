@@ -1,0 +1,8 @@
+fix16_trig.c:17:9:fix16_sin_parabola	40	static
+fix16_trig.c:47:9:fix16_sin	32	static
+fix16_trig.c:109:9:fix16_cos	16	static
+fix16_trig.c:114:9:fix16_tan	24	static
+fix16_trig.c:123:9:fix16_asin	32	static
+fix16_trig.c:136:9:fix16_acos	24	static
+fix16_trig.c:141:9:fix16_atan2	48	static
+fix16_trig.c:183:9:fix16_atan	16	static

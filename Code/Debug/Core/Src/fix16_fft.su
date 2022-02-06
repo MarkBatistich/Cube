@@ -1,0 +1,6 @@
+fix16_fft.c:36:13:four_point_dft	40	static
+fix16_fft.c:55:13:butterfly	72	static
+fix16_fft.c:85:17:rbit_32	16	static
+fix16_fft.c:100:17:rbit_n	16	static
+fix16_fft.c:106:12:ilog2	24	static
+fix16_fft.c:120:6:fix16_fft	48	static

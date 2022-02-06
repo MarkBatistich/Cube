@@ -1,0 +1,2 @@
+fix16.h:233:24:fix_abs	16	static
+fix16_sqrt.c:12:9:fix16_sqrt	32	static
