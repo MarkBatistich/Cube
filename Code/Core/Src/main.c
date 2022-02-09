@@ -112,6 +112,61 @@ void printf16(fix16_t num, int decimals){
 void pn(){
 	printf("\r\n");
 }
+
+void ps(){
+	printf(" ");
+}
+
+void pc(){
+	printf(", ");
+}
+
+void brakeOn() {
+	HAL_GPIO_WritePin(BRAKE_GPIO_Port, BRAKE_Pin, GPIO_PIN_RESET);
+	return;
+}
+
+void brakeOff() {
+	HAL_GPIO_WritePin(BRAKE_GPIO_Port, BRAKE_Pin, GPIO_PIN_SET);
+	return;
+}
+
+void waitUntilStop(){
+	TIM3->CCR1 = 100;
+	brakeOn();
+	int val1 = 0;
+	int val2 = 1;
+	while (val1 != val2){
+		val1 = TIM1->CNT;
+		HAL_Delay (10);
+		val2 = TIM1->CNT;
+	}
+	brakeOff();
+}
+
+fix16_t getBatteryVoltage() {
+	HAL_ADC_Start(&hadc1);
+	uint32_t raw;
+	fix16_t voltage;
+	HAL_ADC_PollForConversion(&hadc1, 1000);
+	raw = HAL_ADC_GetValue(&hadc1);
+	voltage = fix16_mul(fix16_from_int(raw), fix16_from_float(3.3/4095*0.9647)); // Vdd / 2^16 * fudgeFactor
+	voltage = fix16_mul(voltage, fix16_from_float(11.07)); // resistor ratio
+	voltage = fix16_sub(voltage, fix16_from_float(0.1)); // more fudge factor
+	HAL_ADC_Stop(&hadc1);
+	return voltage;
+}
+
+fix16_t rad2deg(fix16_t num){
+	num = fix16_mul(num, fix16_from_int(180));
+	num = fix16_div(num, fix16_pi);
+	return num;
+}
+
+//returns 1 if the number is negative, 0 if positive or 0
+int32_t sign(int32_t num){
+	return (num < 0);
+}
 /* USER CODE END 0 */
 
 /**
@@ -149,27 +204,67 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+  //Start timers and ADC
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
 
   uint8_t rx[6] = { 0 };
   resetICM();
+  spiSet(ACCEL_CONFIG0, 0x06);
   spiSet(GYRO_CONFIG0, 0x06);
   spiSet(PWR_MGMT0, 0x0F);
   HAL_Delay(45);
 
-  fix16_t P = fix16_from_float(32767.999985);
-  fix16_t Q = fix16_atan2(140351, 65536);
-  P = fix16_div(P,Q);
-  Q = fix16_mul(Q, fix16_from_int(2));
-  P = fix16_sqrt(P);
+//  fix16_t P = fix16_from_float(32767.999985);
+//  fix16_t Q = fix16_atan2(140351, 65536);
+//  P = fix16_div(P,Q);
+//  Q = fix16_mul(Q, fix16_from_int(2));
+//  P = fix16_sqrt(P);
 
   printf("start\r\n");
-  printf16(P, 5);
   pn();
-  printf16(Q, 5);
-  pn();
-  //RetargetInit(&huart2);
+
+
+  //variable definitions
+  int16_t pos1, pos2, diff = 0;
+  fix16_t angle, prevAngle, gyrAngle, accAngle = 0;
+  uint32_t start, end = 0;
+  uint8_t dir = 1;
+  uint32_t pulse = TIM3->CCR1;
+  int32_t control, controlSignal = 0;
+  int16_t a_i[3] = {0};
+  fix16_t a_f[3] = {0};
+  int16_t g_i[3] = {0};
+  fix16_t g_f[3] = {0};
+  fix16_t error, errorInt, errorDiff = 0;
+  fix16_t speed = 0;
+  fix16_t speed1, speed2 = 0;
+  fix16_t controlSpeed = 0;
+  fix16_t speedError, speedErrorInt, speedErrorDiff = 0;
+  fix16_t prevSpeedError = 0;
+  uint8_t firstRun = 1;
+
+  const uint32_t dt = 100;
+  const fix16_t tau = fix16_from_int(1);
+  const fix16_t alpha = fix16_div(tau, fix16_add(tau, fix16_div(fix16_from_int(dt), fix16_from_int(1000))));
+  const fix16_t accFactor = fix16_div(fix16_from_int(16), fix16_from_int(32768));
+  const fix16_t gyrFactor = fix16_div(fix16_from_int(2000), fix16_from_int(32768));
+  const fix16_t Kp = fix16_from_float(10.00);
+  const fix16_t Ki = fix16_from_float(0.001);
+  const fix16_t Kd = fix16_from_float(1.000);
+  const fix16_t Kp_s = fix16_from_float(10.00);
+  const fix16_t Ki_s = fix16_from_float(0.00);
+  const fix16_t Kd_s = fix16_from_float(0.10);
+
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET);
+  waitUntilStop();
+  TIM3->CCR1 = 100;
+
+  spiGet(WHO_AM_I, rx, 1);
+  printf("WHO_AM_I: %d\r\n", rx[0]);
+  HAL_Delay(1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -179,10 +274,118 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  spiGet(WHO_AM_I, rx, 1);
-	  printf("WHO AM I: %d\r\n", rx[0]);
-	  HAL_GPIO_TogglePin (LED_GPIO_Port, LED_Pin);
-	  HAL_Delay (2000);   /* Insert delay 100 ms */
+	  start = HAL_GetTick();
+
+	  pos1 = pos2;
+	  pos2 = TIM1 -> CNT;
+	  diff = pos2 - pos1;
+	  if (diff < 0) diff += 65536;
+
+	  spiGet(ACCEL_DATA_X1, rx, 6);
+
+	  a_i[0] = (rx[0] << 8) | rx[1];
+	  a_i[1] = (rx[2] << 8) | rx[3];
+	  a_i[2] = (rx[4] << 8) | rx[5];
+
+	  a_f[0] = fix16_mul(fix16_from_int(a_i[0]), accFactor);
+	  a_f[1] = fix16_mul(fix16_from_int(a_i[1]), accFactor);
+	  a_f[2] = fix16_mul(fix16_from_int(a_i[2]), accFactor);
+
+	  spiGet(GYRO_DATA_X1, rx, 6);
+
+	  g_i[0] = (rx[0] << 8) | rx[1];
+	  g_i[1] = (rx[2] << 8) | rx[3];
+	  g_i[2] = (rx[4] << 8) | rx[5];
+
+	  g_f[0] = fix16_mul(fix16_from_int(g_i[0]), gyrFactor);
+	  g_f[1] = fix16_mul(fix16_from_int(g_i[1]), gyrFactor);
+	  g_f[2] = fix16_mul(fix16_from_int(g_i[2]), gyrFactor);
+
+	  prevAngle = angle;
+	  accAngle = fix16_atan2(-a_f[0], -a_f[1]);
+	  accAngle = rad2deg(accAngle);
+
+	  if (firstRun){
+		  gyrAngle = accAngle;
+		  angle = accAngle;
+	  }
+
+	  gyrAngle = fix16_add(angle, fix16_mul(-g_f[2], fix16_div(fix16_from_int(dt), fix16_from_int(1000))));
+
+	  angle = fix16_add(fix16_mul(alpha, gyrAngle), fix16_mul(fix16_sub(fix16_one, alpha), accAngle));
+
+	  //printf16(angle, 4);
+	  //pn();
+
+	  //HAL_GPIO_TogglePin (LED_GPIO_Port, LED_Pin);
+
+	  speed = fix16_div(fix16_from_int(diff), fix16_from_int(200));
+	  speed = fix16_mul(speed, fix16_from_int(1000/dt));
+
+	  error = angle;
+	  errorDiff = fix16_sub(angle, prevAngle);
+	  errorInt += error;
+	  control = fix16_to_int(fix16_add(fix16_add(fix16_mul(Kp, error), fix16_mul(Ki, errorInt)), fix16_mul(Kd, errorDiff)));
+
+	  control = MAX(MIN(control, 100), -100);
+	  //Ensure motor is stopped before switching directions
+//	  if((sign(control) != sign(diff)) && diff != 0) {
+//		  waitUntilStop();
+//		  dir = !sign(control);
+//		  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dir);
+//	  }
+
+	  controlSpeed = fix16_mul(fix16_from_int(control), fix16_from_float(36 / 100.0));
+	  prevSpeedError = speedError;
+	  speedError = fix16_sub(controlSpeed, speed);
+	  speedErrorDiff = fix16_sub(speedError, prevSpeedError);
+	  speedErrorInt += speedError;
+	  controlSignal = fix16_add(fix16_add(fix16_mul(Kp_s, speedError), fix16_mul(Ki_s, speedErrorInt)), fix16_mul(Kd_s, speedErrorDiff));
+
+	  controlSignal = fix16_mul(controlSignal, fix16_from_float(100 / 36.0));
+	  controlSignal = MAX(MIN(controlSignal, fix16_from_int(100)), fix16_from_int(-100));
+	  controlSignal = fix16_to_int(controlSignal);
+
+	  if (fix16_sub(fix16_abs(fix16_from_int(controlSignal)), fix16_abs(speed)) > 0 && ((sign(controlSignal) == sign(speed)) || speed == 0)) {
+		  pulse = 100 - (controlSignal * (1-2*(controlSignal<0)));
+		  brakeOff();
+	  } else {
+		  pulse = 100;
+		  brakeOn();
+	  }
+
+	  if (speed == 0) {
+		  dir = !sign(controlSpeed);
+		  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dir);
+	  }
+
+	  TIM3->CCR1 = pulse;
+
+//	  printf("%d %d %d ", control, pulse, controlSignal);
+//	  printf16(speed,2);
+//	  ps();
+//	  printf16(controlSpeed, 2);
+//	  pn();
+
+
+	  //TIM3->CCR1 = 80;
+	  printf("%d, ", HAL_GetTick());
+	  printf16(accAngle, 2);
+	  pc();
+	  printf16(gyrAngle, 2);
+	  pc();
+	  printf16(angle, 2);
+	  pn();
+
+	  end = HAL_GetTick();
+	  while (end-start < dt){
+		  HAL_Delay(0);
+		  end = HAL_GetTick();
+	  }
+
+	  firstRun = 0;
+	  //printf("Tick Time: %d\n", end-start);
+	  //pn();
   }
   /* USER CODE END 3 */
 }
@@ -254,7 +457,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.LowPowerAutoPowerOff = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = ENABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DMAContinuousRequests = DISABLE;
@@ -305,7 +508,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -392,9 +595,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
+  htim3.Init.Prescaler = 8-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 100-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)

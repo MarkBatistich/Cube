@@ -59,8 +59,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-
-
 #define BRAKE_Pin GPIO_PIN_8
 #define BRAKE_GPIO_Port GPIOB
 #define DIR_Pin GPIO_PIN_9
