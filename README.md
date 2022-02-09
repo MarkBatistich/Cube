@@ -16,3 +16,7 @@ D = \bigl\{z:|z-z_{0}|\leq r\bigr\}
 ```
 
 ![](https://user-images.githubusercontent.com/12192597/153250879-62fa5c30-0c06-440b-86e0-3e3f9f71bfc6.jpg)
+
+![Figure](https://latex.codecogs.com/png.image?\dpi{110}&space;\bg_white&space;F=P(1+\frac{i}{n})^{nt})
+
+![](https://render.githubusercontent.com/render/math?math={\color{lightgray}\L%20=%20-\sum_{j}[T_{j}ln(O_{j})]%20+%20\frac{\lambda%20W_{ij}^{2}}{2}})
