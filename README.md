@@ -8,11 +8,7 @@ To properly view this without downloading the extension, please look at README.p
 ## Dyanamic Model
 
 Let's define some variables for the dyanmic model:
-$\dot{\theta_C}$
-<img src = "https://render.githubusercontent.com/render/math?math=e^{i \pi} = -1">
-
-<img src="https://render.githubusercontent.com/render/math?math={\color{white}\L = -\sum_{j}[T_{j}ln(O_{j})] + \frac{\lambda W_{ij}^{2}}{2} \rightarrow \text{one-hot} \rightarrow -ln(O_{c}) + \frac{\lambda W_{ij}^{2}}{2}}">
-
+$`\dot{\theta_C}`$
 
 Let $`U`$ be an open subset of the complex plane $`\mathbb{C}`$, and suppose the closed
 disk $`D`$ defined as
