@@ -10,9 +10,9 @@ $`\theta_w`$ - angle of the wheel
 
 $`\theta_f`$ - angle of the frame
 
-$'T'$ - motor torque
+$`T`$ - motor torque
 
-$'C_w'$ - friction torque coefficient
+$`C_w`$ - friction torque coefficient
 
 $`F_w`$ - force of gravity on the wheel
 
