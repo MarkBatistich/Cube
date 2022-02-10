@@ -237,24 +237,25 @@ int main(void)
   int16_t g_i[3] = {0};
   fix16_t g_f[3] = {0};
   fix16_t error, errorInt, errorDiff = 0;
-  fix16_t speed = 0;
-  fix16_t speed1, speed2 = 0;
-  fix16_t controlSpeed = 0;
-  fix16_t speedError, speedErrorInt, speedErrorDiff = 0;
-  fix16_t prevSpeedError = 0;
+  fix16_t velocity = 0;
+  fix16_t controlVelocity = 0;
+  fix16_t velocityError, velocityErrorInt, velocityErrorDiff = 0;
+  fix16_t prevVelocityError = 0;
   uint8_t firstRun = 1;
+  fix16_t angleControl, velocityControl = 0;
 
-  const uint32_t dt = 100;
+
+  const uint32_t dt = 10;
   const fix16_t tau = fix16_from_int(1);
   const fix16_t alpha = fix16_div(tau, fix16_add(tau, fix16_div(fix16_from_int(dt), fix16_from_int(1000))));
   const fix16_t accFactor = fix16_div(fix16_from_int(16), fix16_from_int(32768));
   const fix16_t gyrFactor = fix16_div(fix16_from_int(2000), fix16_from_int(32768));
-  const fix16_t Kp = fix16_from_float(10.00);
-  const fix16_t Ki = fix16_from_float(0.001);
-  const fix16_t Kd = fix16_from_float(1.000);
-  const fix16_t Kp_s = fix16_from_float(10.00);
+  const fix16_t Kp = fix16_from_float(90.00);
+  const fix16_t Ki = fix16_from_float(0.000);
+  const fix16_t Kd = fix16_from_float(200.00);
+  const fix16_t Kp_s = fix16_from_float(0.00);
   const fix16_t Ki_s = fix16_from_float(0.00);
-  const fix16_t Kd_s = fix16_from_float(0.10);
+  const fix16_t Kd_s = fix16_from_float(0.00);
 
   HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
@@ -304,6 +305,7 @@ int main(void)
 	  prevAngle = angle;
 	  accAngle = fix16_atan2(-a_f[0], -a_f[1]);
 	  accAngle = rad2deg(accAngle);
+	  accAngle = fix16_sub(accAngle, fix16_from_float(1.5));
 
 	  if (firstRun){
 		  gyrAngle = accAngle;
@@ -314,39 +316,59 @@ int main(void)
 
 	  angle = fix16_add(fix16_mul(alpha, gyrAngle), fix16_mul(fix16_sub(fix16_one, alpha), accAngle));
 
-	  //printf16(angle, 4);
-	  //pn();
 
 	  //HAL_GPIO_TogglePin (LED_GPIO_Port, LED_Pin);
-
-	  speed = fix16_div(fix16_from_int(diff), fix16_from_int(200));
-	  speed = fix16_mul(speed, fix16_from_int(1000/dt));
 
 	  error = angle;
 	  errorDiff = fix16_sub(angle, prevAngle);
 	  errorInt += error;
-	  control = fix16_to_int(fix16_add(fix16_add(fix16_mul(Kp, error), fix16_mul(Ki, errorInt)), fix16_mul(Kd, errorDiff)));
+	  prevAngle = angle;
 
-	  control = MAX(MIN(control, 100), -100);
-	  //Ensure motor is stopped before switching directions
-//	  if((sign(control) != sign(diff)) && diff != 0) {
-//		  waitUntilStop();
-//		  dir = !sign(control);
-//		  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dir);
-//	  }
+	  velocity = fix16_div(fix16_from_int(diff), fix16_from_int(200));
+	  velocity = fix16_mul(velocity, fix16_from_int(1000/dt));
 
-	  controlSpeed = fix16_mul(fix16_from_int(control), fix16_from_float(36 / 100.0));
-	  prevSpeedError = speedError;
-	  speedError = fix16_sub(controlSpeed, speed);
-	  speedErrorDiff = fix16_sub(speedError, prevSpeedError);
-	  speedErrorInt += speedError;
-	  controlSignal = fix16_add(fix16_add(fix16_mul(Kp_s, speedError), fix16_mul(Ki_s, speedErrorInt)), fix16_mul(Kd_s, speedErrorDiff));
+	  velocityError = velocity;
+	  velocityErrorDiff = fix16_sub(velocityError, prevVelocityError);
+	  velocityErrorInt += velocityError;
+	  prevVelocityError = velocityError;
 
-	  controlSignal = fix16_mul(controlSignal, fix16_from_float(100 / 36.0));
-	  controlSignal = MAX(MIN(controlSignal, fix16_from_int(100)), fix16_from_int(-100));
-	  controlSignal = fix16_to_int(controlSignal);
 
-	  if (fix16_sub(fix16_abs(fix16_from_int(controlSignal)), fix16_abs(speed)) > 0 && ((sign(controlSignal) == sign(speed)) || speed == 0)) {
+
+//	  error = angle;
+//	  errorDiff = fix16_sub(angle, prevAngle);
+//	  errorInt += error;
+//	  control = fix16_to_int(fix16_add(fix16_add(fix16_mul(Kp, error), fix16_mul(Ki, errorInt)), fix16_mul(Kd, errorDiff)));
+//
+//	  control = MAX(MIN(control, 100), -100);
+//	  //Ensure motor is stopped before switching directions
+////	  if((sign(control) != sign(diff)) && diff != 0) {
+////		  waitUntilStop();
+////		  dir = !sign(control);
+////		  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dir);
+////	  }
+//
+//	  controlSpeed = fix16_mul(fix16_from_int(control), fix16_from_float(36 / 100.0));
+//	  prevvelocityError = velocityError;
+//	  velocityError = fix16_sub(controlSpeed, speed);
+//	  velocityErrorDiff = fix16_sub(velocityError, prevvelocityError);
+//	  velocityErrorInt += velocityError;
+//	  controlSignal = fix16_add(fix16_add(fix16_mul(Kp_s, velocityError), fix16_mul(Ki_s, velocityErrorInt)), fix16_mul(Kd_s, velocityErrorDiff));
+//
+//	  controlSignal = fix16_mul(controlSignal, fix16_from_float(100 / 36.0));
+//	  controlSignal = MAX(MIN(controlSignal, fix16_from_int(100)), fix16_from_int(-100));
+//	  controlSignal = fix16_to_int(controlSignal);
+
+	  angleControl = fix16_add(fix16_add(fix16_mul(Kp, error), fix16_mul(Ki, errorInt)), fix16_mul(Kd, errorDiff));
+	  velocityControl = fix16_add(fix16_add(fix16_mul(Kp_s, velocityError), fix16_mul(Ki_s, velocityErrorInt)), fix16_mul(Kd_s, velocityErrorDiff));
+
+	  control = fix16_add(angleControl, -velocityControl);
+
+	  control = MAX(MIN(control, fix16_from_int(100)), fix16_from_int(-100));
+	  controlSignal = fix16_to_int(control);
+
+	  controlVelocity = fix16_mul(control, fix16_from_float(100 / 36.0));
+
+	  if (fix16_sub(fix16_abs(controlVelocity), fix16_abs(velocity)) > 0 && ((sign(controlSignal) == sign(velocity)) || (fix16_abs(velocity) < fix16_from_int(10)))) {
 		  pulse = 100 - (controlSignal * (1-2*(controlSignal<0)));
 		  brakeOff();
 	  } else {
@@ -354,9 +376,13 @@ int main(void)
 		  brakeOn();
 	  }
 
-	  if (speed == 0) {
-		  dir = !sign(controlSpeed);
+	  if (fix16_abs(velocity) < fix16_from_int(10)) {
+		  dir = !sign(controlSignal);
 		  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dir);
+	  }
+
+	  if (fix16_abs(angle) > fix16_from_int(25)) {
+		  pulse = 100;
 	  }
 
 	  TIM3->CCR1 = pulse;
@@ -370,11 +396,15 @@ int main(void)
 
 	  //TIM3->CCR1 = 80;
 	  printf("%d, ", HAL_GetTick());
-	  printf16(accAngle, 2);
+	  printf16(angleControl, 2);
 	  pc();
-	  printf16(gyrAngle, 2);
+	  printf16(velocityControl, 2);
+	  pc();
+	  printf16(control, 2);
 	  pc();
 	  printf16(angle, 2);
+	  pc();
+	  printf("%d, ", pulse);
 	  pn();
 
 	  end = HAL_GetTick();
