@@ -78,8 +78,9 @@ where $K_t$ is the motor torque constant.
 
 The state space equations are put into matrix form:
 
-$\begin{bmatrix}
-\dot{x}_1 \\
+$
+\begin{bmatrix}
+\dot{x}_1 \cr
 \dot{x}_2 \\
 \dot{x}_3 
 \end{bmatrix} = 
@@ -98,3 +99,10 @@ x_3
 -\frac{K_t}{I_c^o} \\
 \frac{K_t}{I_w}-\frac{K_t}{I_c^o}
 \end{bmatrix} u $
+
+$\begin{align} M=\left[
+\begin{array}{c c c c c} 
+1 & 2 & 3 & 4 & 5\\
+3 & 4 & 5 & 6 & 7
+\end{array}\right]
+\end{align}$
