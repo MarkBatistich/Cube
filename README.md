@@ -100,9 +100,4 @@ x_3
 \frac{K_t}{I_w}-\frac{K_t}{I_c^o}
 \end{bmatrix} u $
 
-$\begin{align} M=\left[
-\begin{array}{c c c c c} 
-1 & 2 & 3 & 4 & 5 \cr
-3 & 4 & 5 & 6 & 7 \cr
-\end{array}\right]
-\end{align}$
+Test
