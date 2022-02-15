@@ -103,6 +103,6 @@ x_3
 $\begin{align} M=\left[
 \begin{array}{c c c c c} 
 1 & 2 & 3 & 4 & 5\\
-3 & 4 & 5 & 6 & 7
+3 & 4 & 5 & 6 & 7\\
 \end{array}\right]
 \end{align}$
