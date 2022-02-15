@@ -84,8 +84,8 @@ $\begin{bmatrix}
 \dot{x}_3 
 \end{bmatrix} = 
 \begin{bmatrix}
-0 & 1 & 0 \cr
-\frac{m_cl_cg}{I_c^o} & -\frac{C_f}{I_c^o} & \frac{C_w}{I_c^o} \cr
+0 & 1 & 0 \\
+\frac{m_cl_cg}{I_c^o} & -\frac{C_f}{I_c^o} & \frac{C_w}{I_c^o} \\
 -\frac{m_cl_cg}{I_c^o} & \frac{C_f}{I_c^o} & -\frac{C_w}{I_w}-\frac{C_w}{I_c^o}
 \end{bmatrix}
 \begin{bmatrix}
