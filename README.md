@@ -102,7 +102,7 @@ x_3
 
 $\begin{align} M=\left[
 \begin{array}{c c c c c} 
-1 & 2 & 3 & 4 & 5\\
-3 & 4 & 5 & 6 & 7\\
+1 & 2 & 3 & 4 & 5 \cr
+3 & 4 & 5 & 6 & 7 \cr
 \end{array}\right]
 \end{align}$
