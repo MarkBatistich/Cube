@@ -81,22 +81,22 @@ The state space equations are put into matrix form:
 $
 \begin{bmatrix}
 \dot{x}_1 \cr
-\dot{x}_2 \\
+\dot{x}_2 \cr
 \dot{x}_3 
 \end{bmatrix} = 
 \begin{bmatrix}
-0 & 1 & 0 \\
-\frac{m_cl_cg}{I_c^o} & -\frac{C_f}{I_c^o} & \frac{C_w}{I_c^o} \\
+0 & 1 & 0 \cr
+\frac{m_cl_cg}{I_c^o} & -\frac{C_f}{I_c^o} & \frac{C_w}{I_c^o} \cr
 -\frac{m_cl_cg}{I_c^o} & \frac{C_f}{I_c^o} & -\frac{C_w}{I_w}-\frac{C_w}{I_c^o}
 \end{bmatrix}
 \begin{bmatrix}
-x_1 \\
-x_2 \\
+x_1 \cr
+x_2 \cr
 x_3 
 \end{bmatrix} + 
 \begin{bmatrix}
-0 \\
--\frac{K_t}{I_c^o} \\
+0 \cr
+-\frac{K_t}{I_c^o} \cr
 \frac{K_t}{I_w}-\frac{K_t}{I_c^o}
 \end{bmatrix} u $
 
