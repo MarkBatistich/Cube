@@ -226,20 +226,20 @@ int main(void)
 
 
   //variable definitions
-  int16_t pos1, pos2, diff = 0;
-  fix16_t angle, prevAngle, gyrAngle, accAngle = 0;
-  uint32_t start, end = 0;
+  int16_t pos1 = 0, pos2 = 0, diff = 0;
+  fix16_t angle = 0, prevAngle = 0, gyrAngle = 0, accAngle = 0;
+  uint32_t start = 0, end = 0;
   uint8_t dir = 1;
   uint32_t pulse = TIM3->CCR1;
-  int32_t control, controlSignal = 0;
+  int32_t control = 0, controlSignal = 0;
   int16_t a_i[3] = {0};
   fix16_t a_f[3] = {0};
   int16_t g_i[3] = {0};
   fix16_t g_f[3] = {0};
-  fix16_t error, errorInt, errorDiff = 0;
+  fix16_t error = 0, errorInt = 0, errorDiff = 0;
   fix16_t velocity = 0;
   fix16_t controlVelocity = 0;
-  fix16_t velocityError, velocityErrorInt, velocityErrorDiff = 0;
+  fix16_t velocityError = 0, velocityErrorInt = 0, velocityErrorDiff = 0;
   fix16_t prevVelocityError = 0;
   uint8_t firstRun = 1;
   fix16_t angleControl, velocityControl = 0;
@@ -250,10 +250,10 @@ int main(void)
   const fix16_t alpha = fix16_div(tau, fix16_add(tau, fix16_div(fix16_from_int(dt), fix16_from_int(1000))));
   const fix16_t accFactor = fix16_div(fix16_from_int(16), fix16_from_int(32768));
   const fix16_t gyrFactor = fix16_div(fix16_from_int(2000), fix16_from_int(32768));
-  const fix16_t Kp = fix16_from_float(90.00);
-  const fix16_t Ki = fix16_from_float(0.000);
+  const fix16_t Kp = fix16_from_float(80.00);
+  const fix16_t Ki = fix16_from_float(3.000);
   const fix16_t Kd = fix16_from_float(200.00);
-  const fix16_t Kp_s = fix16_from_float(0.00);
+  const fix16_t Kp_s = fix16_from_float(10.00);
   const fix16_t Ki_s = fix16_from_float(0.00);
   const fix16_t Kd_s = fix16_from_float(0.00);
 
@@ -383,6 +383,7 @@ int main(void)
 
 	  if (fix16_abs(angle) > fix16_from_int(25)) {
 		  pulse = 100;
+		  errorInt = 0;
 	  }
 
 	  TIM3->CCR1 = pulse;

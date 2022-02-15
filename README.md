@@ -70,11 +70,11 @@ $\dot{x}_3 = \frac{T- C_w\dot{\theta_w}}{I_w} - \frac{m_cl_cgsin(\theta_f)-T+C_w
 
 The small angle approximation is applied: $\sin(\dot{\theta}_f)=\dot{\theta}_f$
 
-Relating the motor torque to to pwm input $u$:
+The torque is related to the pwm input $u$ by the equation:
 
-$T = K_tu$ 
+$T = K_tu$
 
-where $K_t$ is the motor torque constant
+where $K_t$ is the motor torque constant.
 
 The state space equations are put into matrix form:
 
