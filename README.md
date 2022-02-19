@@ -68,7 +68,7 @@ $\dot{x}_2 = \frac{m_cl_cgsin(\theta_f)-T+C_w\dot{\theta_w}-C_f\dot{\theta}_f}{I
 
 $\dot{x}_3 = \frac{T- C_w\dot{\theta_w}}{I_w} - \frac{m_cl_cgsin(\theta_f)-T+C_w\dot{\theta_w}-C_f\dot{\theta}_f}{I_c^o}$
 
-The small angle approximation is applied: $\sin(\dot{\theta}_f)=\dot{\theta}_f$
+The small angle approximation is applied: $\sin({\theta}_f)={\theta}_f$
 
 The torque is related to the pwm input $u$ by the equation:
 
@@ -100,4 +100,20 @@ x_3
 \frac{K_t}{I_w}-\frac{K_t}{I_c^o}
 \end{bmatrix} u $
 
-Test
+Now all these values had to be determined. For better scaling, the gcs units were used (grams, centimeters, seconds):
+
+$ g = 981 [\frac{cm}{s^2}]$
+
+$m_c = 710\ [g]$
+
+$l_c = 6.28\ [cm]$
+
+$I_c^o = 37200\ [g*cm^2]$
+
+$I_w = 2740 \ [g*cm^2]$
+
+$C_f = 0$
+
+$C_w = 0$
+
+$K_t = 250000\ [\frac{g*cm^2}{s^2}]$

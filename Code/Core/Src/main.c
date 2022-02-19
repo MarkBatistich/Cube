@@ -245,19 +245,19 @@ int main(void)
   fix16_t angleControl, velocityControl = 0;
 
 
-  const uint32_t dt = 10;
+  const uint32_t dt = 10; //milliseconds
+  const fix16_t dt_f = fix16_div(fix16_from_int(dt), fix16_from_int(1000)); //seconds
   const fix16_t tau = fix16_from_int(1);
-  const fix16_t alpha = fix16_div(tau, fix16_add(tau, fix16_div(fix16_from_int(dt), fix16_from_int(1000))));
+  const fix16_t alpha = fix16_div(tau, fix16_add(tau, dt_f));
   const fix16_t accFactor = fix16_div(fix16_from_int(16), fix16_from_int(32768));
   const fix16_t gyrFactor = fix16_div(fix16_from_int(2000), fix16_from_int(32768));
-  const fix16_t Kp = fix16_from_float(80.00);
-  const fix16_t Ki = fix16_from_float(3.000);
-  const fix16_t Kd = fix16_from_float(200.00);
-  const fix16_t Kp_s = fix16_from_float(10.00);
+  const fix16_t Kp = fix16_from_float(100.00);
+  const fix16_t Ki = fix16_from_float(0.00);
+  const fix16_t Kd = fix16_from_float(0.00);
+  const fix16_t Kp_s = fix16_from_float(0.00);
   const fix16_t Ki_s = fix16_from_float(0.00);
   const fix16_t Kd_s = fix16_from_float(0.00);
 
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET);
   waitUntilStop();
@@ -312,7 +312,7 @@ int main(void)
 		  angle = accAngle;
 	  }
 
-	  gyrAngle = fix16_add(angle, fix16_mul(-g_f[2], fix16_div(fix16_from_int(dt), fix16_from_int(1000))));
+	  gyrAngle = fix16_add(angle, fix16_mul(-g_f[2], dt_f));
 
 	  angle = fix16_add(fix16_mul(alpha, gyrAngle), fix16_mul(fix16_sub(fix16_one, alpha), accAngle));
 
@@ -325,7 +325,7 @@ int main(void)
 	  prevAngle = angle;
 
 	  velocity = fix16_div(fix16_from_int(diff), fix16_from_int(200));
-	  velocity = fix16_mul(velocity, fix16_from_int(1000/dt));
+	  velocity = fix16_mul(velocity, dt_f);
 
 	  velocityError = velocity;
 	  velocityErrorDiff = fix16_sub(velocityError, prevVelocityError);

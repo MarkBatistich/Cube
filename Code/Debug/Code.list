@@ -3357,32 +3357,32 @@ int main(void)
  800176c:	f7ff fb61 	bl	8000e32 <fix16_div>
  8001770:	0003      	movs	r3, r0
  8001772:	64fb      	str	r3, [r7, #76]	; 0x4c
-  const fix16_t Kp = fix16_from_float(80.00);
+  const fix16_t Kp = fix16_from_float(120.00);
  8001774:	4b3e      	ldr	r3, [pc, #248]	; (8001870 <main+0x2e0>)
  8001776:	1c18      	adds	r0, r3, #0
  8001778:	f7ff fd7a 	bl	8001270 <fix16_from_float>
  800177c:	0003      	movs	r3, r0
  800177e:	64bb      	str	r3, [r7, #72]	; 0x48
-  const fix16_t Ki = fix16_from_float(3.000);
- 8001780:	4b3c      	ldr	r3, [pc, #240]	; (8001874 <main+0x2e4>)
+  const fix16_t Ki = fix16_from_float(0.00);
+ 8001780:	2300      	movs	r3, #0
  8001782:	1c18      	adds	r0, r3, #0
  8001784:	f7ff fd74 	bl	8001270 <fix16_from_float>
  8001788:	0003      	movs	r3, r0
  800178a:	647b      	str	r3, [r7, #68]	; 0x44
-  const fix16_t Kd = fix16_from_float(200.00);
- 800178c:	4b3a      	ldr	r3, [pc, #232]	; (8001878 <main+0x2e8>)
+  const fix16_t Kd = fix16_from_float(200);
+ 800178c:	4b39      	ldr	r3, [pc, #228]	; (8001874 <main+0x2e4>)
  800178e:	1c18      	adds	r0, r3, #0
  8001790:	f7ff fd6e 	bl	8001270 <fix16_from_float>
  8001794:	0003      	movs	r3, r0
  8001796:	643b      	str	r3, [r7, #64]	; 0x40
-  const fix16_t Kp_s = fix16_from_float(10.00);
- 8001798:	4b38      	ldr	r3, [pc, #224]	; (800187c <main+0x2ec>)
+  const fix16_t Kp_s = fix16_from_float(5);
+ 8001798:	4b37      	ldr	r3, [pc, #220]	; (8001878 <main+0x2e8>)
  800179a:	1c18      	adds	r0, r3, #0
  800179c:	f7ff fd68 	bl	8001270 <fix16_from_float>
  80017a0:	0003      	movs	r3, r0
  80017a2:	63fb      	str	r3, [r7, #60]	; 0x3c
-  const fix16_t Ki_s = fix16_from_float(0.00);
- 80017a4:	2300      	movs	r3, #0
+  const fix16_t Ki_s = fix16_from_float(0.1);
+ 80017a4:	4b35      	ldr	r3, [pc, #212]	; (800187c <main+0x2ec>)
  80017a6:	1c18      	adds	r0, r3, #0
  80017a8:	f7ff fd62 	bl	8001270 <fix16_from_float>
  80017ac:	0003      	movs	r3, r0
@@ -3492,10 +3492,10 @@ int main(void)
  8001864:	20000148 	.word	0x20000148
  8001868:	080077b8 	.word	0x080077b8
  800186c:	40000400 	.word	0x40000400
- 8001870:	42a00000 	.word	0x42a00000
- 8001874:	40400000 	.word	0x40400000
- 8001878:	43480000 	.word	0x43480000
- 800187c:	41200000 	.word	0x41200000
+ 8001870:	42f00000 	.word	0x42f00000
+ 8001874:	43480000 	.word	0x43480000
+ 8001878:	40a00000 	.word	0x40a00000
+ 800187c:	3dcccccd 	.word	0x3dcccccd
  8001880:	50000400 	.word	0x50000400
  8001884:	080077c0 	.word	0x080077c0
  8001888:	40012c00 	.word	0x40012c00
