@@ -62,7 +62,7 @@ From these equations, a state space model is made:
 
 $x_1=\theta_f, x_2=\dot{\theta}_f,x_3=\dot{\theta}_w$
 
-$\dot{x}_1 = x_2$
+\dot{x}_1 = x_2$
 
 $\dot{x}_2 = \frac{m_cl_cgsin(\theta_f)-T+C_w\dot{\theta_w}-C_f\dot{\theta}_f}{I_c^o}$
 
@@ -74,19 +74,18 @@ The torque is related to the pwm input $u$ by the equation:
 
 $T = K_tu$
 
-where $K_t$ is the motor torque constant.
+where $K_t$ is the motor torque constant and $u$ is the applied PWM input to the motor on the range of $[-1, 1]$.
 
 The state space equations are put into matrix form:
 
-$
-\begin{bmatrix}
+$\begin{bmatrix}
 \dot{x}_1 \cr
 \dot{x}_2 \cr
 \dot{x}_3 
 \end{bmatrix} = 
 \begin{bmatrix}
-0 & 1 & 0 \cr
-\frac{m_cl_cg}{I_c^o} & -\frac{C_f}{I_c^o} & \frac{C_w}{I_c^o} \cr
+0 & 1 & 0\cr
+\frac{m_cl_cg}{I_c^o} & -\frac{C_f}{I_c^o} & \frac{C_w}{I_c^o}\cr
 -\frac{m_cl_cg}{I_c^o} & \frac{C_f}{I_c^o} & -\frac{C_w}{I_w}-\frac{C_w}{I_c^o}
 \end{bmatrix}
 \begin{bmatrix}
@@ -95,8 +94,8 @@ x_2 \cr
 x_3 
 \end{bmatrix} + 
 \begin{bmatrix}
-0 \cr
--\frac{K_t}{I_c^o} \cr
+0 \\
+-\frac{K_t}{I_c^o} \\
 \frac{K_t}{I_w}-\frac{K_t}{I_c^o}
 \end{bmatrix} u $
 
